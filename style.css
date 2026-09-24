@@ -6903,7 +6903,8 @@ footer{
     color: #ddd;
 }
 .model-box {
-    width: 440px;
+    width: 100%;
+    max-width: 440px;   /* was a fixed 440px, which is wider than most phones */
     height: 440px;
 
     position: relative;
@@ -7009,4 +7010,137 @@ footer{
   padding: 25px 26px;
 
   background: #fff;
+}
+
+
+/* =========================================================
+   RESPONSIVE FIXES
+   Keep this block at the very END of the file so it wins
+   over the older rules above it.
+   ========================================================= */
+
+/* ---------- 1. Global safety net ---------- */
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body{ overflow-x:hidden; }
+model-viewer{ max-width:100%; }
+
+/* anchor links shouldn't land underneath the fixed nav */
+section[id], header[id]{ scroll-margin-top:72px; }
+
+/* ---------- 2. Nav ----------
+   backdrop-filter on .nav turned it into the containing block for the
+   fixed mobile menu, so the menu collapsed to nav height and its links
+   spilled over the page. The blur now lives on a pseudo-element instead. */
+.nav{
+  background:transparent;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+.nav::before{
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:rgba(21,23,26,.88);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+}
+.nav-mobile-only{ display:none; }
+
+/* just above the hamburger breakpoint the full nav is tight: reduce spacing */
+@media (min-width:1101px) and (max-width:1279px){
+  .nav ul{ gap:20px; }
+  .nav a{ font-size:14px; }
+  .nav-right{ gap:10px; }
+  .nav .resume-btn{ padding:7px 12px; font-size:13.5px; }
+}
+
+@media (max-width:1100px){
+  .nav{ padding-top:12px; padding-bottom:12px; }
+  .nav .mark{ font-size:17px; white-space:nowrap; }
+
+  /* Email / LinkedIn / Resume move into the menu on small screens */
+  .nav-right .resume-btn{ display:none; }
+
+  .nav-toggle{
+    display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px; margin-right:-10px; font-size:24px;
+  }
+
+  .nav ul.nav-links{
+    position:absolute; inset:100% 0 auto 0;      /* directly under the bar */
+    display:flex; flex-direction:column;
+    max-height:calc(100vh - 70px);
+    max-height:calc(100dvh - 70px);
+    overflow-y:auto;
+    gap:0; padding:8px var(--gutter) 20px;
+    background:var(--ink);
+    border-bottom:1px solid var(--line-dark);
+    transform:none;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .2s ease, visibility .2s ease;
+  }
+  .nav ul.nav-links.open{
+    opacity:1; visibility:visible; pointer-events:auto; transform:none;
+  }
+  .nav ul.nav-links li a{
+    display:block; padding:14px 0; font-size:16px;
+    border-bottom:1px solid var(--line-dark);
+  }
+  .nav ul.nav-links li:last-child a{ border-bottom:0; }
+  .nav .nav-mobile-only{ display:block; }
+  .nav ul.nav-links li:not(.nav-mobile-only) + .nav-mobile-only{
+    margin-top:10px; border-top:1px solid var(--accent);
+  }
+}
+
+/* ---------- 3. Hero ---------- */
+.hero-grid > *{ min-width:0; }           /* stop grid children from forcing the column wider */
+.hero h1, .hero .role{ overflow-wrap:break-word; }
+
+@media (max-width:900px){
+  .hero{ padding-top:120px; padding-bottom:64px; }
+  .hero-grid{ gap:40px; }
+  .model-box{
+    margin:0 auto;
+    height:clamp(280px, 88vw, 440px);    /* stays square-ish and never wider than the screen */
+  }
+}
+@media (max-width:600px){
+  .hero{ padding-top:104px; padding-bottom:56px; }
+  .hero h1{ font-size:clamp(32px, 9.6vw, 44px); }
+  .hero h1 br{ display:none; }              /* let the headline wrap naturally */
+  .hero .role{ font-size:16px; }
+  .hero-cta{ margin-top:28px; gap:10px; }
+  .hero-cta .btn{ padding:12px 18px; font-size:14.5px; }
+  .hero .stats{ gap:18px; margin-top:32px; flex-wrap:wrap; }
+  .hero .stats b{ font-size:22px; }
+}
+
+/* ---------- 4. Section rhythm on small screens ---------- */
+@media (max-width:768px){
+  .section{ padding:64px 0; }
+  .dim-head{ margin-bottom:32px; flex-wrap:wrap; gap:12px; }
+}
+
+/* section titles were dark-on-dark inside the dark 3D-model section */
+.section-dark .dim-head h2{ color:var(--concrete-lt); }
+
+/* ---------- 5. About: big empty gap under the heading on phones ---------- */
+@media (max-width:600px){
+  #about .about-heading{ padding-bottom:0 !important; }
+}
+
+/* ---------- 6. Skills: two columns on normal phones ---------- */
+@media (max-width:600px) and (min-width:380px){
+  #skills .skill-grid{ grid-template-columns:repeat(2, minmax(0,1fr)) !important; gap:10px !important; }
+  #skills .skill-card{ gap:10px !important; padding:10px 8px !important; }
+  #skills .skill-card > span{ font-size:13.5px !important; }
+}
+
+/* ---------- 7. Nested cards: reclaim horizontal space on phones ---------- */
+@media (max-width:600px){
+  .experience-card{ padding:8px !important; }
+  .experience-card-inner{ padding:16px 14px !important; }
+
+  .co-curricular-card{ padding:8px !important; }
+  .co-curricular-inner{ padding:16px 14px !important; }
+  .co-curricular-timeline{ max-width:calc(100% - 28px); }
 }
