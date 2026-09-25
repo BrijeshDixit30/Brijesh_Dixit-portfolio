@@ -607,46 +607,6 @@ function openProject(projectId) {
 
   }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const contactForm = document.getElementById("contactForm");
-  const submitBtn = document.getElementById("contactSubmit");
-
-  if (contactForm) {
-    contactForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      // UI Feedback: Disable button and update text
-      submitBtn.disabled = true;
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Sending...";
-
-      try {
-        const formData = new FormData(contactForm);
-        const response = await fetch(contactForm.action, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-
-        if (response.ok) {
-          alert("Thank you! Your message has been sent successfully.");
-          contactForm.reset();
-        } else {
-          alert("Something went wrong. Please try submitting again.");
-        }
-      } catch (err) {
-        console.error("Submission error:", err);
-        alert("Unable to send message. Please check your internet connection.");
-      } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
-  }
-});
   // =======================================================
   // SHOW PROJECT DETAIL
   // =======================================================
@@ -1141,112 +1101,65 @@ function closeLightbox() {
 // CONTACT FORM
 // =========================================================
 
-const contactForm =
-  document.getElementById("contactForm");
+const contactForm = document.getElementById("contactForm");
+const contactSubmit = document.getElementById("contactSubmit");
 
-const contactSubmit =
-  document.getElementById("contactSubmit");
+contactForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
+  if (!contactSubmit) return;
 
-contactForm?.addEventListener(
-  "submit",
-  async (event) => {
+  const originalText = contactSubmit.textContent;
 
-    event.preventDefault();
+  contactSubmit.textContent = "Sending...";
+  contactSubmit.disabled = true;
 
-    if (!contactForm || !contactSubmit) {
-      return;
-    }
+  try {
+    const formData = new FormData(contactForm);
 
-    const originalText =
-      contactSubmit.textContent;
+    const data = Object.fromEntries(formData.entries());
 
-    contactSubmit.textContent =
-      "Sending...";
-
-    contactSubmit.disabled = true;
-
-
-    try {
-
-      const formData =
-        new FormData(contactForm);
-
-
-      const response =
-        await fetch(
-          "https://formsubmit.co/ajax/dixitbm@rknec.edu",
-          {
-            method: "POST",
-
-            headers: {
-              "Accept": "application/json"
-            },
-
-            body: formData
-          }
-        );
-
-
-      const result =
-        await response.json();
-
-
-      if (response.ok && result.success) {
-
-        contactSubmit.textContent =
-          "Message sent ✓";
-
-        contactForm.reset();
-
-
-        setTimeout(() => {
-
-          contactSubmit.textContent =
-            originalText;
-
-          contactSubmit.disabled =
-            false;
-
-        }, 2500);
-
-
-      } else {
-
-        throw new Error(
-          "Submission failed"
-        );
-
+    const response = await fetch(
+      "https://formsubmit.co/ajax/dixitbm@rknec.edu",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(data)
       }
+    );
 
+    const result = await response.json();
 
-    } catch (error) {
+    console.log("FormSubmit response:", result);
 
-      console.error(
-        "Contact form error:",
-        error
-      );
-
-      contactSubmit.textContent =
-        "Try again";
-
-      contactSubmit.disabled =
-        false;
-
+    if (response.ok && result.success) {
+      contactSubmit.textContent = "Message sent ✓";
+      contactForm.reset();
 
       setTimeout(() => {
-
-        contactSubmit.textContent =
-          originalText;
-
+        contactSubmit.textContent = originalText;
+        contactSubmit.disabled = false;
       }, 2500);
 
+    } else {
+      throw new Error(result.message || "Submission failed");
     }
 
+  } catch (error) {
+
+    console.error("Contact form error:", error);
+
+    contactSubmit.textContent = "Try again";
+
+    setTimeout(() => {
+      contactSubmit.textContent = originalText;
+      contactSubmit.disabled = false;
+    }, 2500);
   }
-);
-
-
+});
 // =========================================================
 // SKILL SEARCH
 // =========================================================
